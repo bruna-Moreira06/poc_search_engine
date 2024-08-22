@@ -125,10 +125,16 @@
       />
       <input type="submit" value="Search" />
     </form>
+
     <!-- Retour page home -->
     <p><a href="{{ url_for('index') }}">Back to Home</a></p>
+
+    <!-- Condition pour afficher les documents uploadés seulement si aucune recherche n'est lancée -->
+    {% if not query %}
+
     <!-- Séparation entre le formulaire et la liste des documents -->
     <hr />
+
     <!-- Titre pour les documents déjà uploadés -->
     <h2>Uploaded Documents</h2>
 
@@ -151,5 +157,6 @@
       </li>
       {% endfor %}
     </ul>
+    {% endif %}
   </body>
 </html>
