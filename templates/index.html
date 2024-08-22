@@ -1,17 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document Manager</title>
-</head>
-<body>
+    <style>
+      /* Style global */
+      body {
+        font-family: "Arial", sans-serif;
+        background-color: #f4f4f9;
+        color: #333;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      h1 {
+        color: #5a67d8;
+        margin-top: 50px;
+        font-size: 2.5em;
+      }
+
+      nav {
+        background-color: #ffffff;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        margin-top: 20px;
+        border-radius: 8px;
+        width: 80%;
+        max-width: 600px;
+      }
+
+      ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        justify-content: space-around;
+      }
+
+      li {
+        flex: 1;
+      }
+
+      a {
+        display: block;
+        text-align: center;
+        padding: 15px;
+        color: #5a67d8;
+        text-decoration: none;
+        font-weight: bold;
+        border-radius: 8px;
+        transition: background-color 0.3s, color 0.3s;
+      }
+
+      a:hover {
+        background-color: #5a67d8;
+        color: #ffffff;
+      }
+
+      @media (max-width: 600px) {
+        nav {
+          width: 100%;
+        }
+
+        ul {
+          flex-direction: column;
+        }
+
+        li {
+          margin-bottom: 10px;
+        }
+
+        li:last-child {
+          margin-bottom: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
     <h1>Document Manager</h1>
     <nav>
-        <ul>
-            <li><a href="{{ url_for('upload_file') }}">Upload PDF</a></li>
-            <li><a href="{{ url_for('search') }}">Search Documents</a></li>
-        </ul>
+      <ul>
+        <li><a href="{{ url_for('upload_file') }}">Upload PDF</a></li>
+        <li><a href="{{ url_for('search') }}">Search Documents</a></li>
+      </ul>
     </nav>
-</body>
+  </body>
 </html>
