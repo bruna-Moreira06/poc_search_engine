@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Search Documents</title>
     <style>
-      /* Style global */
+      /* Ajoutez votre CSS ici */
       body {
         font-family: "Arial", sans-serif;
         background-color: #f0f4f8;
@@ -94,10 +94,28 @@
         margin-top: 10px;
         width: 100%;
       }
+
+      /* Style pour la séparation */
+      hr {
+        border: 0;
+        height: 1px;
+        background: #ccc;
+        margin: 40px 0; /* Ajuster la marge pour plus ou moins d'espace */
+        width: 100%;
+        max-width: 600px;
+      }
+
+      h2 {
+        color: #2b6cb0;
+        margin-bottom: 20px;
+        font-size: 2em;
+      }
     </style>
   </head>
   <body>
     <h1>Search Documents</h1>
+
+    <!-- Formulaire de recherche -->
     <form method="post">
       <input
         type="text"
@@ -107,18 +125,25 @@
       />
       <input type="submit" value="Search" />
     </form>
+    <!-- Retour page home -->
     <p><a href="{{ url_for('index') }}">Back to Home</a></p>
+    <!-- Séparation entre le formulaire et la liste des documents -->
+    <hr />
+    <!-- Titre pour les documents déjà uploadés -->
+    <h2>Uploaded Documents</h2>
+
+    <!-- Liste des documents (résultats de la recherche ou tous les documents) -->
     <ul>
-      {% for result in results %}
+      {% for document in results %}
       <li>
-        <strong>File Name:</strong> {{ result._source.file_name }}<br />
-        <strong>Is Signed:</strong> {{ result._source.is_signed }}<br />
-        <strong>Content Preview:</strong> {{ result._source.content[:200]
+        <strong>File Name:</strong> {{ document._source.file_name }}<br />
+        <strong>Is Signed:</strong> {{ document._source.is_signed }}<br />
+        <strong>Content Preview:</strong> {{ document._source.content[:200]
         }}...<br />
-        {% if not result._source.is_signed %}
+        {% if not document._source.is_signed %}
         <form
           method="post"
-          action="{{ url_for('update_signature', doc_id=result._id) }}"
+          action="{{ url_for('update_signature', doc_id=document._id) }}"
         >
           <input type="submit" value="Mark as Signed" />
         </form>

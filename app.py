@@ -63,20 +63,27 @@ def upload_file():
 # Route pour rechercher des documents dans Elasticsearch
 @app.route('/search', methods=['GET', 'POST'])
 def search():
-    results = []  # Liste pour stocker les résultats de recherche
-    query = ''  # Variable pour stocker la requête de recherche
-    if request.method == 'POST':  # Si la méthode est POST (formulaire soumis)
-        query = request.form['query']  # Récupère la requête de recherche
+    results = []
+    query = ''
+    
+    if request.method == 'POST':
+        query = request.form['query']
         search_query = {
             "query": {
                 "match": {
-                    "content": query  # Recherche des documents correspondant à la requête
+                    "content": query
                 }
             }
         }
-        response = es.search(index="documents", body=search_query)  # Effectue la recherche
-        results = response['hits']['hits']  # Récupère les résultats de la recherche
+        response = es.search(index="documents", body=search_query)
+        results = response['hits']['hits']
+    else:
+        # Récupère tous les documents si la méthode n'est pas POST
+        response = es.search(index="documents", body={"query": {"match_all": {}}})
+        results = response['hits']['hits']
+
     return render_template('search.html', results=results, query=query)
+
 
 # Route pour mettre à jour le statut "signé" d'un document
 @app.route('/update-signature/<doc_id>', methods=['POST'])
@@ -85,6 +92,13 @@ def update_signature(doc_id):
     es.update(index="documents", id=doc_id, body={"doc": {"is_signed": True}})
     flash('Document signed status updated')  # Alerte de succès
     return redirect(url_for('search'))  # Redirige vers la page de recherche
+
+@app.route('/documents')
+def show_documents():
+    # Requête pour récupérer tous les documents indexés dans Elasticsearch
+    response = es.search(index="documents", body={"query": {"match_all": {}}})
+    all_documents = response['hits']['hits']  # Récupère tous les documents
+    return render_template('documents.html', documents=all_documents)
 
 # Lancer l'application Flask en mode debug
 if __name__ == '__main__':
