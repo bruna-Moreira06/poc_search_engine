@@ -118,16 +118,6 @@
         width: 100%;
       }
 
-      /* Style pour la séparation */
-      hr {
-        border: 0;
-        height: 1px;
-        background: #ccc;
-        margin: 40px 0;
-        width: 100%;
-        max-width: 600px;
-      }
-
       h2 {
         color: #2b6cb0;
         margin-bottom: 20px;
@@ -160,14 +150,17 @@
     <!-- Retour page home -->
     <p><a href="{{ url_for('index') }}">Back to Home</a></p>
 
-    <!-- Condition pour afficher les documents uploadés seulement si aucune recherche n'est lancée -->
+    <!-- Condition pour afficher titre: documents uploadés -->
     {% if not query %}
-
-    <!-- Séparation entre le formulaire et la liste des documents -->
-    <hr />
-
     <!-- Titre pour les documents déjà uploadés -->
-    <h2>Uploaded Documents</h2>
+    <h2>Uploaded documents</h2>
+    {% endif %}
+
+    <!-- Condition pour afficher titre: résultats recherche -->
+    {% if query %}
+    <!-- Titre pour les documents déjà uploadés -->
+    <h2>Search results</h2>
+    {% endif %}
 
     <!-- Liste des documents (résultats de la recherche ou tous les documents) -->
     <ul>
@@ -188,6 +181,5 @@
       </li>
       {% endfor %}
     </ul>
-    {% endif %}
   </body>
 </html>
