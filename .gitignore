@@ -29,3 +29,4 @@ secrets.txt
 # Ignore specific file types
 *.pdf
 *.docx
+*.db
