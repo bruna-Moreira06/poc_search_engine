@@ -58,7 +58,7 @@ pip install -r requirements.txt
    Puis, lancez ElasticSearch :
 
    ```bash
-   docker-compose up -d
+   docker compose up -d
    ```
 
 5. Initialisez la base de données SQLite :
