@@ -2,6 +2,8 @@ import os
 import fitz  # PyMuPDF pour manipuler les fichiers PDF
 from elasticsearch import Elasticsearch
 from flask import Flask, flash, redirect, render_template, request, url_for
+import sqlite3
+from flask import g
 
 # Initialiser l'application Flask
 app = Flask(__name__)
@@ -9,6 +11,20 @@ app.secret_key = "supersecretkey"  # Clé secrète pour les sessions Flask
 
 # Initialiser la connexion à Elasticsearch
 es = Elasticsearch([{'host': 'localhost', 'port': 9200, 'scheme': 'http'}])
+
+DATABASE = 'poc_search_engine.db'
+
+def get_db():
+    db = getattr(g, '_database', None)
+    if db is None:
+        db = g._database = sqlite3.connect(DATABASE)
+    return db
+
+@app.teardown_appcontext
+def close_connection(exception):
+    db = getattr(g, '_database', None)
+    if db is not None:
+        db.close()
 
 # Dossier pour stocker les fichiers uploadés
 UPLOAD_FOLDER = 'uploads'
@@ -39,6 +55,23 @@ def process_pdf(pdf_path):
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/add_user', methods=['GET', 'POST'])
+def add_user():
+    if request.method == 'POST':
+        username = request.form['username']
+        email = request.form['email']
+        password = request.form['password']
+        role_id = request.form['role_id']
+
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("INSERT INTO utilisateurs (username, email, password, role_id) VALUES (?, ?, ?, ?)",
+                       (username, email, password, role_id))
+        db.commit()
+        flash('User added successfully')
+        return redirect(url_for('index'))
+    return render_template('add_user.html')
 
 # Route pour uploader un fichier PDF
 @app.route('/upload', methods=['GET', 'POST'])
