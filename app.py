@@ -192,7 +192,7 @@ def add_tag():
 
         db = get_db()
         cursor = db.cursor()
-        cursor.execute("INSERT INTO labels (name) VALUES (?)", (name))
+        cursor.execute("INSERT INTO labels (name) VALUES (?)", (name,))
         db.commit()
 
         flash('Tag added successfully')
