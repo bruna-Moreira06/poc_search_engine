@@ -83,8 +83,15 @@
     <h1>Document Manager</h1>
     <nav>
       <ul>
-        <li><a href="{{ url_for('upload_file') }}">Upload PDF</a></li>
+        <li><a href="{{ url_for('upload_document') }}">Upload PDF</a></li>
         <li><a href="{{ url_for('search') }}">Search Documents</a></li>
+        <li><a href="{{ url_for('add_user') }}">Add User</a></li>
+        <li><a href="{{ url_for('add_role') }}">Add Role</a></li>
+        <li><a href="{{ url_for('add_permissions') }}">Add Permissions</a></li>
+        <li>
+          <a href="{{ url_for('assign_permission') }}">Add Permissions Roles</a>
+        </li>
+        <li><a href="{{ url_for('add_tag') }}">Add Tag</a></li>
       </ul>
     </nav>
   </body>

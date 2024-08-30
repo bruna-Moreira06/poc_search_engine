@@ -1,9 +1,10 @@
 import os
 import fitz  # PyMuPDF pour manipuler les fichiers PDF
 from elasticsearch import Elasticsearch
-from flask import Flask, flash, redirect, render_template, request, url_for
+from flask import Flask, flash, redirect, render_template, request, send_from_directory, url_for
 import sqlite3
 from flask import g
+from werkzeug.utils import secure_filename
 
 # Initialiser l'application Flask
 app = Flask(__name__)
@@ -15,10 +16,9 @@ es = Elasticsearch([{'host': 'localhost', 'port': 9200, 'scheme': 'http'}])
 DATABASE = 'poc_search_engine.db'
 
 def get_db():
-    db = getattr(g, '_database', None)
-    if db is None:
-        db = g._database = sqlite3.connect(DATABASE)
-    return db
+    conn = sqlite3.connect('poc_search_engine.db')
+    conn.row_factory = sqlite3.Row
+    return conn
 
 @app.teardown_appcontext
 def close_connection(exception):
@@ -67,31 +67,47 @@ def add_user():
         db = get_db()
         cursor = db.cursor()
         cursor.execute("INSERT INTO utilisateurs (username, email, password, role_id) VALUES (?, ?, ?, ?)",
-                       (username, email, password, role_id))
+                    (username, email, password, role_id))
         db.commit()
         flash('User added successfully')
         return redirect(url_for('index'))
     return render_template('add_user.html')
 
 # Route pour uploader un fichier PDF
-@app.route('/upload', methods=['GET', 'POST'])
-def upload_file():
-    if request.method == 'POST':  # Si la méthode est POST (formulaire soumis)
-        if 'file' not in request.files:
-            flash('No file part')  # Alerte si aucun fichier n'est sélectionné
-            return redirect(request.url)
-        file = request.files['file']  # Récupère le fichier uploadé
-        if file.filename == '':
-            flash('No selected file')  # Alerte si aucun fichier n'est choisi
-            return redirect(request.url)
-        if file and file.filename.endswith('.pdf'):
-            # Si le fichier est un PDF valide
-            filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
-            file.save(filepath)  # Sauvegarde le fichier sur le serveur
-            process_pdf(filepath)  # Traite et indexe le PDF
-            flash('File successfully uploaded and processed')
-            return redirect(url_for('index'))  # Redirige vers l'accueil
-    return render_template('upload.html')  # Affiche la page d'upload
+@app.route('/upload_document', methods=['GET', 'POST'])
+def upload_document():
+    if request.method == 'POST':
+        # Récupérer l'utilisateur connecté (supposons que son ID est dans session)
+        uploaded_by = 1  # Remplacez par la vraie méthode pour obtenir l'utilisateur actuel
+        is_signed = 0  # ou 1 selon votre logique
+
+        # Récupérer le fichier uploadé
+        file = request.files['file']
+        if file and file.filename != '':
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+            # Connexion à la base de données
+            db = get_db()
+            cursor = db.cursor()
+
+            # Insertion des informations dans la base de données
+            cursor.execute("""
+                INSERT INTO documents (document_name, uploaded_by, is_signed)
+                VALUES (?, ?, ?)
+            """, (filename, uploaded_by, is_signed))
+            db.commit()
+
+            # Message de confirmation
+            flash('Document uploaded successfully')
+
+            # Redirection vers une page (ex: liste des documents)
+            return redirect(url_for('list_documents'))
+
+        flash('No file selected or invalid file name')
+    
+    # Affichage du formulaire d'upload
+    return render_template('upload.html')
 
 # Route pour rechercher des documents dans Elasticsearch
 @app.route('/search', methods=['GET', 'POST'])
@@ -127,11 +143,75 @@ def update_signature(doc_id):
     return redirect(url_for('search'))  # Redirige vers la page de recherche
 
 @app.route('/documents')
-def show_documents():
-    # Requête pour récupérer tous les documents indexés dans Elasticsearch
-    response = es.search(index="documents", body={"query": {"match_all": {}}})
-    all_documents = response['hits']['hits']  # Récupère tous les documents
-    return render_template('documents.html', documents=all_documents)
+def list_documents():
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT * FROM documents")
+    documents = cursor.fetchall()
+    return render_template('documents.html', documents=documents)
+
+# Route pour ajouter un rôle
+@app.route('/add_role', methods=['GET', 'POST'])
+def add_role():
+    if request.method == 'POST':
+        role_id = request.form['role_id']
+        role_name = request.form['role_name']
+        role_description = request.form['role_description']
+
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("INSERT INTO roles (role_id, role_name, role_description) VALUES (?, ?, ?)",
+                    (role_id, role_name, role_description))
+        db.commit()
+        flash('User added successfully')
+        return redirect(url_for('index'))
+    return render_template('add_role.html')
+
+@app.route('/add_permissions', methods=['GET', 'POST'])
+def add_permissions():
+    if request.method == 'POST':
+        permission_id = request.form['permission_id']
+        permission_name = request.form['permission_name']
+
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("INSERT INTO permissions (permission_id, permission_name) VALUES (?, ?)",
+                    (permission_id, permission_name))
+        db.commit()
+        flash('User added successfully')
+        return redirect(url_for('index'))
+    return render_template('add_permissions.html')
+
+@app.route('/assign_permission', methods=['GET', 'POST'])
+def assign_permission():
+    if request.method == 'POST':
+        role_id = request.form['role_id']
+        permission_id = request.form['permission_id']
+
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("INSERT INTO permissions_des_roles (role_id, permission_id) VALUES (?, ?)",
+                       (role_id, permission_id))
+        db.commit()
+
+        flash('Permission assigned to role successfully')
+        return redirect(url_for('index'))
+    return render_template('add_permissions_roles.html')
+
+@app.route('/add_tag', methods=['GET', 'POST'])
+def add_tag():
+    if request.method == 'POST':
+        tag_name = request.form['tag_name']
+
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("INSERT INTO etiquettes (tag_name) VALUES (?)", (tag_name,))
+        db.commit()
+
+        flash('Tag added successfully')
+        return redirect(url_for('index'))
+    return render_template('add_etiquettes.html')
+
 
 # Lancer l'application Flask en mode debug
 if __name__ == '__main__':

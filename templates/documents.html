@@ -48,10 +48,10 @@
     <ul>
       {% for document in documents %}
       <li>
-        <strong>File Name:</strong> {{ document._source.file_name }}<br />
-        <strong>Is Signed:</strong> {{ document._source.is_signed }}<br />
-        <strong>Uploaded On:</strong> {{
-        document._source.upload_date|default('N/A') }}<br />
+        <strong>File Name:</strong> {{ document['document_name'] }}<br />
+        <strong>Is Signed:</strong> {{ document['is_signed'] }}<br />
+        <strong>Uploaded On:</strong> {{ document['upload_date']|default('N/A')
+        }}<br />
       </li>
       {% endfor %}
     </ul>
