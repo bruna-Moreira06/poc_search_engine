@@ -1,60 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Uploaded Documents</title>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document List</title>
     <style>
-      /* Ajoutez ici votre CSS personnalisé si nécessaire */
-      body {
-        font-family: Arial, sans-serif;
-        background-color: #f0f4f8;
-        color: #333;
-        margin: 0;
-        padding: 20px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-      }
-
-      h1 {
-        color: #2b6cb0;
-        margin-bottom: 20px;
-        font-size: 2.5em;
-      }
-
-      ul {
-        list-style-type: none;
-        padding: 0;
-        width: 100%;
-        max-width: 600px;
-      }
-
-      li {
-        background-color: #ffffff;
-        margin-bottom: 15px;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      }
-
-      li strong {
-        color: #2b6cb0;
-      }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f4f8;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            color: #2b6cb0;
+            margin-bottom: 20px;
+            font-size: 2.5em;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+            width: 100%;
+            max-width: 600px;
+        }
+        li {
+            background-color: #ffffff;
+            margin-bottom: 15px;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        li strong {
+            color: #2b6cb0;
+        }
     </style>
-  </head>
-  <body>
+</head>
+<body>
     <h1>Uploaded Documents</h1>
     <ul>
-      {% for document in documents %}
-      <li>
-        <strong>File Name:</strong> {{ document['document_name'] }}<br />
-        <strong>Is Signed:</strong> {{ document['is_signed'] }}<br />
-        <strong>Uploaded On:</strong> {{ document['upload_date']|default('N/A')
-        }}<br />
-      </li>
-      {% endfor %}
+        {% for document in documents %}
+        <li>
+            <strong>Document ID:</strong> {{ document['id'] }}<br />
+            <strong>File Name:</strong> {{ document['name'] }}<br />
+            <strong>Uploaded By:</strong> {{ document['uploaded_by'] }}<br />
+            <strong>Upload Date:</strong> {{ document['upload_date']|default('N/A') }}<br />
+            <strong>Is Signed:</strong> {{ 'Yes' if document['is_signed'] else 'No' }}<br />
+        </li>
+        {% endfor %}
     </ul>
     <p><a href="{{ url_for('index') }}">Back to Home</a></p>
-  </body>
+</body>
 </html>

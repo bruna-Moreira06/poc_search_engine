@@ -54,4 +54,3 @@ CREATE TABLE IF NOT EXISTS document_tags (
     CONSTRAINT document_id_docTag FOREIGN KEY (document_id) REFERENCES documents(id) on delete cascade,
     CONSTRAINT tag_id_docTag FOREIGN KEY (tag_id) REFERENCES tag(id) on delete cascade
 );
-

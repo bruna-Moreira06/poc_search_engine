@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Search Documents</title>
     <style>
-      /* Ajoutez votre CSS ici */
       body {
         font-family: "Arial", sans-serif;
         background-color: #f0f4f8;
@@ -111,11 +110,6 @@
         color: #2b6cb0;
       }
 
-      form input[type="submit"] {
-        margin-top: 10px;
-        width: 100%;
-      }
-
       h2 {
         color: #2b6cb0;
         margin-bottom: 20px;
@@ -147,28 +141,23 @@
     <!-- Retour page home -->
     <p><a href="{{ url_for('index') }}">Back to Home</a></p>
 
-    {% if not query %}
-    <h2>Uploaded documents</h2>
-    {% endif %} {% if query %}
-    <h2>Search results</h2>
+    <!-- Affichage des documents -->
+    {% if query %}
+    <h2>Search Results</h2>
+    {% else %}
+    <h2>Uploaded Documents</h2>
     {% endif %}
 
-    <!-- Liste des documents (résultats de la recherche ou tous les documents) -->
     <ul>
       {% for document in results %}
       <li>
-        <strong>File Name:</strong> {{ document['document_name'] }}<br />
-        <strong>Is Signed:</strong> {{ document['is_signed'] }}<br />
-        <strong>Uploaded On:</strong> {{ document['upload_date']|default('N/A')
+        <strong>Document ID:</strong> {{ document['id'] }}<br />
+        <strong>File Name:</strong> {{ document['name'] }}<br />
+        <strong>Uploaded By:</strong> {{ document['uploaded_by'] }}<br />
+        <strong>Upload Date:</strong> {{ document['upload_date']|default('N/A')
         }}<br />
-        {% if not document['is_signed'] %}
-        <form
-          method="post"
-          action="{{ url_for('update_signature', doc_id=document['document_id']) }}"
-        >
-          <input type="submit" value="Mark as Signed" />
-        </form>
-        {% endif %}
+        <strong>Is Signed:</strong> {{ 'Yes' if document['is_signed'] else 'No'
+        }}<br />
       </li>
       {% endfor %}
     </ul>

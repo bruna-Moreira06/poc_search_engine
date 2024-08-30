@@ -66,7 +66,7 @@ def add_user():
 
         db = get_db()
         cursor = db.cursor()
-        cursor.execute("INSERT INTO utilisateurs (username, email, password, role_id) VALUES (?, ?, ?, ?)",
+        cursor.execute("INSERT INTO user (username, email, password, role_id) VALUES (?, ?, ?, ?)",
                     (username, email, password, role_id))
         db.commit()
         flash('User added successfully')
@@ -77,9 +77,8 @@ def add_user():
 @app.route('/upload_document', methods=['GET', 'POST'])
 def upload_document():
     if request.method == 'POST':
-        # Récupérer l'utilisateur connecté (supposons que son ID est dans session)
-        uploaded_by = 1  # Remplacez par la vraie méthode pour obtenir l'utilisateur actuel
-        is_signed = 0  # ou 1 selon votre logique
+        uploaded_by = 1
+        is_signed = 0
 
         # Récupérer le fichier uploadé
         file = request.files['file']
@@ -93,7 +92,7 @@ def upload_document():
 
             # Insertion des informations dans la base de données
             cursor.execute("""
-                INSERT INTO documents (document_name, uploaded_by, is_signed)
+                INSERT INTO documents (name, uploaded_by, is_signed)
                 VALUES (?, ?, ?)
             """, (filename, uploaded_by, is_signed))
             db.commit()
@@ -112,56 +111,44 @@ def upload_document():
 # Route pour rechercher des documents dans Elasticsearch
 @app.route('/search', methods=['GET', 'POST'])
 def search():
+    query = ""
     results = []
-    query = ''
-    
+    db = get_db()
+    cursor = db.cursor()
+
     if request.method == 'POST':
         query = request.form['query']
-        search_query = {
-            "query": {
-                "match": {
-                    "content": query
-                }
-            }
-        }
-        response = es.search(index="documents", body=search_query)
-        results = response['hits']['hits']
+        cursor.execute("SELECT * FROM documents WHERE document_name LIKE ?", ('%' + query + '%',))
     else:
-        # Récupère tous les documents si la méthode n'est pas POST
-        response = es.search(index="documents", body={"query": {"match_all": {}}})
-        results = response['hits']['hits']
+        cursor.execute("SELECT * FROM documents")
 
-    return render_template('search.html', results=results, query=query)
+    results = cursor.fetchall()
+
+    return render_template('search.html', query=query, results=[dict(row) for row in results])
+
 
 
 # Route pour mettre à jour le statut "signé" d'un document
-@app.route('/update-signature/<doc_id>', methods=['POST'])
+@app.route('/update_signature/<doc_id>', methods=['POST'])
 def update_signature(doc_id):
     # Met à jour l'attribut is_signed pour le document spécifié
     es.update(index="documents", id=doc_id, body={"doc": {"is_signed": True}})
-    flash('Document signed status updated')  # Alerte de succès
+    flash('Document signed status updated')
     return redirect(url_for('search'))  # Redirige vers la page de recherche
 
-@app.route('/documents')
-def list_documents():
-    db = get_db()
-    cursor = db.cursor()
-    cursor.execute("SELECT * FROM documents")
-    documents = cursor.fetchall()
-    return render_template('documents.html', documents=documents)
 
 # Route pour ajouter un rôle
 @app.route('/add_role', methods=['GET', 'POST'])
 def add_role():
     if request.method == 'POST':
-        role_id = request.form['role_id']
-        role_name = request.form['role_name']
-        role_description = request.form['role_description']
+        id = request.form['id']
+        name = request.form['name']
+        description = request.form['description']
 
         db = get_db()
         cursor = db.cursor()
-        cursor.execute("INSERT INTO roles (role_id, role_name, role_description) VALUES (?, ?, ?)",
-                    (role_id, role_name, role_description))
+        cursor.execute("INSERT INTO roles (id, name, description) VALUES (?, ?, ?)",
+                    (id, name, description))
         db.commit()
         flash('User added successfully')
         return redirect(url_for('index'))
@@ -170,13 +157,13 @@ def add_role():
 @app.route('/add_permissions', methods=['GET', 'POST'])
 def add_permissions():
     if request.method == 'POST':
-        permission_id = request.form['permission_id']
-        permission_name = request.form['permission_name']
+        id = request.form['id']
+        name = request.form['name']
 
         db = get_db()
         cursor = db.cursor()
-        cursor.execute("INSERT INTO permissions (permission_id, permission_name) VALUES (?, ?)",
-                    (permission_id, permission_name))
+        cursor.execute("INSERT INTO permissions (id, name) VALUES (?, ?)",
+                    (id, name))
         db.commit()
         flash('User added successfully')
         return redirect(url_for('index'))
@@ -190,7 +177,7 @@ def assign_permission():
 
         db = get_db()
         cursor = db.cursor()
-        cursor.execute("INSERT INTO permissions_des_roles (role_id, permission_id) VALUES (?, ?)",
+        cursor.execute("INSERT INTO role_permissions (role_id, permission_id) VALUES (?, ?)",
                        (role_id, permission_id))
         db.commit()
 
@@ -201,11 +188,11 @@ def assign_permission():
 @app.route('/add_tag', methods=['GET', 'POST'])
 def add_tag():
     if request.method == 'POST':
-        tag_name = request.form['tag_name']
+        name = request.form['name']
 
         db = get_db()
         cursor = db.cursor()
-        cursor.execute("INSERT INTO etiquettes (tag_name) VALUES (?)", (tag_name,))
+        cursor.execute("INSERT INTO labels (name) VALUES (?)", (name))
         db.commit()
 
         flash('Tag added successfully')
