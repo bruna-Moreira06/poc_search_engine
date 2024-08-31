@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS role_permissions (
 -- Table documents
 CREATE TABLE IF NOT EXISTS documents (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
+    name_doc TEXT NOT NULL,
     uploaded_by INTEGER,
     upload_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     is_signed BOOLEAN NOT NULL CHECK (is_signed IN (0, 1)),
