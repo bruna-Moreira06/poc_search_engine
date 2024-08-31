@@ -11,14 +11,14 @@ CREATE TABLE IF NOT EXISTS user (
 -- Table roles
 CREATE TABLE IF NOT EXISTS roles (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
+    name_roles TEXT NOT NULL,
     description TEXT NOT NULL
 );
 
 -- Table permissions
-CREATE TABLE IF NOT EXISTS permissions (
+CREATE TABLE IF NOT EXISTS permission (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL
+    name_permissions TEXT NOT NULL
 );
 
 -- Table permissions_des_roles
@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS role_permissions (
     permission_id INTEGER,
     PRIMARY KEY (role_id, permission_id),
     CONSTRAINT id_role_permissions FOREIGN KEY (role_id) REFERENCES roles(id) on delete cascade, 
-    CONSTRAINT id_permissions_permissions FOREIGN KEY (permission_id) REFERENCES permissions(id) on delete cascade
+    CONSTRAINT id_permissions_permissions FOREIGN KEY (permission_id) REFERENCES permission(id) on delete cascade
 );
 
 -- Table documents
@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS documents (
 -- Table etiquettes
 CREATE TABLE IF NOT EXISTS labels (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL
+    name_labels TEXT NOT NULL
 );
 
 -- Table documentTags
@@ -52,5 +52,5 @@ CREATE TABLE IF NOT EXISTS document_tags (
     tag_id INTEGER,
     PRIMARY KEY (document_id, tag_id),
     CONSTRAINT document_id_docTag FOREIGN KEY (document_id) REFERENCES documents(id) on delete cascade,
-    CONSTRAINT tag_id_docTag FOREIGN KEY (tag_id) REFERENCES tag(id) on delete cascade
+    CONSTRAINT tag_id_docTag FOREIGN KEY (tag_id) REFERENCES labels(id) on delete cascade
 );
