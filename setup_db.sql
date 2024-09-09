@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS user (
     email TEXT NOT NULL UNIQUE,
     password TEXT NOT NULL,
     role_id INTEGER,
-    CONSTRAINT id_role_utilisateurs FOREIGN KEY (role_id) REFERENCES roles (id) on delete cascade
+    CONSTRAINT id_role_utilisateurs FOREIGN KEY (role_id) REFERENCES roles (id)
 );
 
 -- Table roles
@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS documents (
     uploaded_by INTEGER,
     upload_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     is_signed BOOLEAN NOT NULL CHECK (is_signed IN (0, 1)),
-    CONSTRAINT user_id_upload FOREIGN KEY (uploaded_by) REFERENCES user(id) on delete cascade
+    CONSTRAINT user_id_upload FOREIGN KEY (uploaded_by) REFERENCES user(id)
 );
 
 -- Table etiquettes

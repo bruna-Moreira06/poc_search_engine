@@ -95,13 +95,13 @@ def upload_document():
             db = get_db()
             cursor = db.cursor()
             cursor.execute("""
-                INSERT INTO documents (name, uploaded_by, is_signed)
+                INSERT INTO documents (name_doc, uploaded_by, is_signed)
                 VALUES (?, ?, ?)
             """, (filename, uploaded_by, is_signed))
             db.commit()
 
             flash('Document uploaded successfully')
-            return redirect(url_for('list_documents'))
+            return redirect(url_for('index'))
         flash('No file selected or invalid file name')
     
     return render_template('upload.html')
@@ -117,10 +117,9 @@ def search():
 
     if request.method == 'POST':
         query = request.form['query']
-        cursor.execute("SELECT * FROM documents WHERE name LIKE ?", ('%' + query + '%',))
+        cursor.execute("SELECT * FROM documents WHERE name_doc LIKE ?", ('%' + query + '%',))
     else:
         cursor.execute("SELECT * FROM documents")
-
     results = cursor.fetchall()
 
     return render_template('search.html', query=query, results=[dict(row) for row in results])
@@ -145,7 +144,7 @@ def add_role():
 
         db = get_db()
         cursor = db.cursor()
-        cursor.execute("INSERT INTO roles (id, name, description) VALUES (?, ?, ?)",
+        cursor.execute("INSERT INTO roles (id, name_roles, description) VALUES (?, ?, ?)",
                     (id, name, description))
         db.commit()
         flash('User added successfully')
@@ -161,7 +160,7 @@ def add_permissions():
 
         db = get_db()
         cursor = db.cursor()
-        cursor.execute("INSERT INTO permissions (id, name) VALUES (?, ?)",
+        cursor.execute("INSERT INTO permissions (id, name_permissions) VALUES (?, ?)",
                     (id, name))
         db.commit()
         flash('User added successfully')
@@ -193,12 +192,24 @@ def add_tag():
 
         db = get_db()
         cursor = db.cursor()
-        cursor.execute("INSERT INTO labels (name) VALUES (?)", (name,))
+        cursor.execute("INSERT INTO labels (name_labels) VALUES (?)", (name,))
         db.commit()
 
         flash('Tag added successfully')
         return redirect(url_for('index'))
     return render_template('add_etiquettes.html')
+
+def delete_document(document_id):
+    db = get_db()
+    cursor = db.cursor()
+
+    cursor.execute("DELETE FROM documents WHERE id = ?", (document_id,))
+    db.commit()
+
+    es.delete(index="documents", id=document_id)
+
+    print(f"Document {document_id} supprimé de SQLite et Elasticsearch.")
+
 
 # Lancer l'application Flask en mode debug
 if __name__ == '__main__':

@@ -44,7 +44,7 @@
         {% for document in documents %}
         <li>
             <strong>Document ID:</strong> {{ document['id'] }}<br />
-            <strong>File Name:</strong> {{ document['name'] }}<br />
+            <strong>File Name:</strong> {{ document['name_doc'] }}<br />
             <strong>Uploaded By:</strong> {{ document['uploaded_by'] }}<br />
             <strong>Upload Date:</strong> {{ document['upload_date']|default('N/A') }}<br />
             <strong>Is Signed:</strong> {{ 'Yes' if document['is_signed'] else 'No' }}<br />
