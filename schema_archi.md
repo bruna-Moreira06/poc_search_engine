@@ -10,11 +10,12 @@ graph TD;
 
     subgraph "Base de données"
         SQLite[SQLite Database]
-    end
-
-    subgraph Docker
+            subgraph Docker
         ElasticSearch[ElasticSearch]
     end
+    end
+
+
 
     User -->|HTTP Requests| FlaskAPI
     FlaskAPI -->|Search Queries| ElasticSearch
